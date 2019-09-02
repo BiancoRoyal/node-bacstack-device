@@ -1,4 +1,4 @@
-const bacnet  = require('bacstack');
+const bacnet  = require('@biancoroyal/bacstack');
 const debug   = require('debug')('bacstack-device');
 
 const settings = {
@@ -31,7 +31,7 @@ client.on('whoIs', (data) => {
   debug(data);
   if (data.lowLimit && data.lowLimit > settings.deviceId) return;
   if (data.highLimit && data.highLimit < settings.deviceId) return;
-  client.iAmResponse(settings.deviceId, bacnet.enum.Segmentations.SEGMENTATION_BOTH, settings.vendorId);
+  client.iAmResponse(settings.deviceId, bacnet.enum.Segmentation.SEGMENTED_BOTH, settings.vendorId);
 });
 
 client.on('readProperty', (data) => {
