@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/fh1ch/node-bacstack-device#readme",
   "dependencies": {
-    "@biancoroyal/bacstack": "^0.0.1-beta.21",
+    "@biancoroyal/bacstack": "https://github.com/biancode/node-bacstack",
     "debug": "^4.1.1"
   },
   "devDependencies": {

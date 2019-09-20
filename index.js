@@ -6,7 +6,7 @@ const settings = {
   vendorId: 7
 };
 
-const client = new bacnet();
+const client = new bacnet({interface: '10.0.75.1', deviceId: '47111880'});
 
 const dataStore = {
   '1:0': {
@@ -31,38 +31,38 @@ client.on('whoIs', (data) => {
   debug(data);
   if (data.lowLimit && data.lowLimit > settings.deviceId) return;
   if (data.highLimit && data.highLimit < settings.deviceId) return;
-  client.iAmResponse(settings.deviceId, bacnet.enum.Segmentation.SEGMENTED_BOTH, settings.vendorId);
+  client.iAmResponse(data.sender, settings.deviceId, bacnet.enum.Segmentation.SEGMENTED_BOTH, settings.vendorId);
 });
 
 client.on('readProperty', (data) => {
-  const object = dataStore[data.request.objectId.type + ':' + data.request.objectId.instance];
+  const object = dataStore[data.payload.objectId.type + ':' + data.payload.objectId.instance];
   debug('object', object);
-  if (!object) return client.errorResponse(data.address, bacnet.enum.ConfirmedServices.SERVICE_CONFIRMED_READ_PROPERTY, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_OBJECT, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_OBJECT);
-  const property = object[data.request.property.id];
+  if (!object) return client.errorResponse(data.sender, bacnet.enum.ConfirmedServices.SERVICE_CONFIRMED_READ_PROPERTY, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_OBJECT, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_OBJECT);
+  const property = object[data.payload.property.id];
   debug('object', property);
-  if (!property) return client.errorResponse(data.address, bacnet.enum.ConfirmedServices.SERVICE_CONFIRMED_READ_PROPERTY, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_PROPERTY, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_PROPERTY);
-  if (data.request.property.index === 0xFFFFFFFF) {
-    client.readPropertyResponse(data.address, data.invokeId, data.request.objectId, data.request.property, property);
+  if (!property) return client.errorResponse(data.sender, bacnet.enum.ConfirmedServices.SERVICE_CONFIRMED_READ_PROPERTY, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_PROPERTY, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_PROPERTY);
+  if (data.payload.property.index === 0xFFFFFFFF) {
+    client.readPropertyResponse(data.sender, data.invokeId, data.payload.objectId, data.payload.property, property);
   } else {
-    const slot = property[data.request.property.index];
-    if (!slot) return client.errorResponse(data.address, bacnet.enum.ConfirmedServices.SERVICE_CONFIRMED_READ_PROPERTY, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_PROPERTY, bacnet.enum.ErrorCodes.ERROR_CODE_INVALID_ARRAY_INDEX);
-    client.readPropertyResponse(data.address, data.invokeId, data.request.objectId, data.request.property, [slot]);
+    const slot = property[data.payload.property.index];
+    if (!slot) return client.errorResponse(data.sender, bacnet.enum.ConfirmedServices.SERVICE_CONFIRMED_READ_PROPERTY, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_PROPERTY, bacnet.enum.ErrorCodes.ERROR_CODE_INVALID_ARRAY_INDEX);
+    client.readPropertyResponse(data.sender, data.invokeId, data.payload.objectId, data.payload.property, [slot]);
   }
 });
 
 client.on('writeProperty', (data) => {
-  const object = dataStore[data.request.objectId.type + ':' + data.request.objectId.instance];
-  if (!object) return client.errorResponse(data.address, data.service, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_OBJECT, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_OBJECT);
-  const property = object[data.request.property.id];
-  if (!property) return client.errorResponse(data.address, data.service, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_PROPERTY, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_PROPERTY);
-  if (data.request.property.index === 0xFFFFFFFF) {
-    property = data.request.value.value;
-    client.simpleAckResponse(data.address, data.service, data.invokeId);
+  const object = dataStore[data.payload.objectId.type + ':' + data.payload.objectId.instance];
+  if (!object) return client.errorResponse(data.sender, data.service, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_OBJECT, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_OBJECT);
+  const property = object[data.payload.property.id];
+  if (!property) return client.errorResponse(data.sender, data.service, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_PROPERTY, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_PROPERTY);
+  if (data.payload.property.index === 0xFFFFFFFF) {
+    property = data.payload.value.value;
+    client.simpleAckResponse(data.sender, data.service, data.invokeId);
   } else {
-    const slot = property[data.request.property.index];
-    if (!slot) return client.errorResponse(data.address, data.service, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_PROPERTY, bacnet.enum.ErrorCodes.ERROR_CODE_INVALID_ARRAY_INDEX);
-    slot = data.request.value.value[0];
-    client.simpleAckResponse(data.address, data.service, data.invokeId);
+    const slot = property[data.payload.property.index];
+    if (!slot) return client.errorResponse(data.sender, data.service, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_PROPERTY, bacnet.enum.ErrorCodes.ERROR_CODE_INVALID_ARRAY_INDEX);
+    slot = data.payload.value.value[0];
+    client.simpleAckResponse(data.sender, data.service, data.invokeId);
   }
 });
 
@@ -74,11 +74,11 @@ client.on('whoHas', (data) => {
   if (data.objId) {
     var object = dataStore[data.objId.type + ':' + data.objId.instance];
     if (!object) return;
-    client.iHaveResponse(settings.deviceId, {type: data.objId.type, instance: data.objId.instance}, object[77][0].value);
+    client.iHaveResponse(data.sender, settings.deviceId, {type: data.objId.type, instance: data.objId.instance}, object[77][0].value);
   }
   if (data.objName) {
     // TODO: Find stuff...
-    client.iHaveResponse(settings.deviceId, {type: 1, instance: 1}, 'test');
+    client.iHaveResponse(data.sender, settings.deviceId, {type: 1, instance: 1}, 'test');
   }
 });
 
@@ -91,18 +91,18 @@ client.on('timeSyncUTC', (data) => {
 });
 
 client.on('readPropertyMultiple', (data) => {
-  debug(data.request.properties);
+  debug(data.payload.properties);
   const responseList = [];
-  const properties = data.request.properties;
+  const properties = data.payload.properties;
   properties.forEach((property) => {
-    if (property.objectId.type === bacnet.enum.ObjectTypes.OBJECT_DEVICE && property.objectId.instance === 4194303) {
+    if (property.objectId.type === bacnet.enum.ObjectTypesSupported.DEVICE && property.objectId.instance === 4194303) {
       property.objectId.instance = settings.deviceId;
     }
     const object = dataStore[property.objectId.type + ':' + property.objectId.instance];
     if (!object) return; // TODO: Add error
     const propList = [];
     property.properties.forEach((item) => {
-      if (item.id === bacnet.enum.PropertyIds.PROP_ALL) {
+      if (item.id === bacnet.enum.PropertyIdentifier.ALL) {
         for (let key in object) {
           propList.push({property: {id: key, index: 0xFFFFFFFF}, value: object[key]});
         }
@@ -122,14 +122,14 @@ client.on('readPropertyMultiple', (data) => {
     });
     responseList.push({objectId: {type: property.objectId.type, instance: property.objectId.instance}, values: propList});
   });
-  client.readPropertyMultipleResponse('192.168.178.255', data.invokeId, responseList);
+  client.readPropertyMultipleResponse(data.sender, data.invokeId, responseList);
 });
 
 client.on('writePropertyMultiple', (data) => {
   // TODO: Implement
   // TODO: valuesRefs
-  //if () client.simpleAckResponse(data.address, data.service, data.invokeId);
-  //else client.errorResponse(data.address, data.service, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_OBJECT, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_OBJECT);
+  //if () client.simpleAckResponse(data.sender, data.service, data.invokeId);
+  //else client.errorResponse(data.sender, data.service, data.invokeId, bacnet.enum.ErrorClasses.ERROR_CLASS_OBJECT, bacnet.enum.ErrorCodes.ERROR_CODE_UNKNOWN_OBJECT);
 });
 
 client.on('atomicWriteFile', (data) => {
@@ -159,4 +159,4 @@ client.on('createObject', (data) => {
 client.on('deleteObject', (data) => {
 });
 
-console.log('Node BACstack Device started');
+console.log('Node BACstack Device started at ' + client._settings.interface);
