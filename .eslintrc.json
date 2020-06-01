@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "quotes": ["error", "single"],
+    "max-len": [
+      2,
+      320
+    ],
+    "semi": [
+      2,
+      "always"
+    ],
+    "curly": 0,
+    "valid-jsdoc": 0
+  }
+}

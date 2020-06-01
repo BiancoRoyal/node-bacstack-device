@@ -1,7 +1,7 @@
 {
   "name": "bacstack-device",
-  "version": "0.0.1",
-  "description": "A BACnet device simulator using Node BACstack.",
+  "version": "0.2.0",
+  "description": "A BACnet device simulator using Node BACnet®.",
   "main": "index.js",
   "scripts": {
     "changelog": "commitlint --from=master",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fh1ch/node-bacstack-device.git"
+    "url": "git+https://github.com/BiancoRoyal/node-bacstack-device.git"
   },
   "keywords": [
     "bacnet",
@@ -23,30 +23,32 @@
     "name": "Fabio Huser",
     "email": "fabio@fh1.ch"
   },
+  "contributors": [
+    {
+      "name": "Klaus Landsdorf",
+      "email": "klaus@iniationware.com"
+    },
+    {
+      "name": "Ingo Fischer",
+      "email": "iobroker@fischer-ka.de"
+    }
+  ],
   "engines": {
-    "node": ">= 0.12.0"
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
+    "node": ">= 10"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fh1ch/node-bacstack-device/issues"
+    "url": "https://github.com/BiancoRoyal/node-bacstack-device/issues"
   },
-  "homepage": "https://github.com/fh1ch/node-bacstack-device#readme",
+  "homepage": "https://github.com/BiancoRoyal/node-bacstack-device#readme",
   "dependencies": {
-    "@biancoroyal/bacstack": "https://github.com/biancode/node-bacstack",
+    "node-bacnet": "^0.1.2-beta.3",
     "debug": "^4.1.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^5.2.5",
-    "@commitlint/config-conventional": "^5.2.3",
-    "@commitlint/travis-cli": "^5.2.5",
     "chai": "^4.1.2",
     "istanbul": "^0.4.5",
-    "jscs": "^3.0.7",
+    "eslint": "^7.1.0",
     "jshint": "^2.9.5",
     "mocha": "^4.0.1"
   }

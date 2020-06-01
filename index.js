@@ -1,12 +1,16 @@
-const bacnet  = require('@biancoroyal/bacstack');
-const debug   = require('debug')('bacstack-device');
+'use strict';
+
+
+const bacnet  = require('node-bacnet');
+const debug   = require('debug')('bacnet:device');
+
 
 const settings = {
   deviceId: 443,
   vendorId: 7
 };
 
-const client = new bacnet({interface: '10.0.75.1', deviceId: '47111880'});
+const client = new bacnet({interface: '192.168.10.151', deviceId: '47111880'});
 
 const dataStore = {
   '1:0': {
@@ -159,4 +163,4 @@ client.on('createObject', (data) => {
 client.on('deleteObject', (data) => {
 });
 
-console.log('Node BACstack Device started at ' + client._settings.interface);
+console.log('Node BACnet® device started at ' + client._settings.interface);
